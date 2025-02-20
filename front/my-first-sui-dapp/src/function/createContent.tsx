@@ -13,6 +13,57 @@ const AddContent: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
     const [description, setDescription] = useState(''); // 用户输入的用途描述
     const [accountDetails, setAccountDetails] = useState([]); // 存储账单详情
 
+    // 样式定义
+    const inputStyle = {
+        padding: '10px',
+        margin: '5px 0',
+        border: '2px solid #ccc',
+        borderRadius: '5px',
+        fontSize: '16px',
+        width: '100%',
+        boxSizing: 'border-box',
+        height: '40px', // 统一高度
+    };
+
+    const buttonContainerStyle = {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginLeft: '10px',
+        alignItems: 'center', // 垂直居中对齐
+    };
+
+    const buttonStyle = {
+        padding: '10px 20px',
+        backgroundColor: 'white',
+        color: 'black',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        transition: 'background-color 0.3s ease',
+        marginRight: '10px', // 给按钮之间留出间距
+        height: '40px', // 统一高度以匹配输入框和选择框
+        display: 'flex',
+        alignItems: 'center', // 垂直居中对齐文字
+        justifyContent: 'center', // 水平居中对齐文字
+    };
+
+    const selectStyle = {
+        padding: '10px',
+        margin: '10px 0',
+        border: '2px solid #ccc',
+        borderRadius: '5px',
+        fontSize: '16px',
+        width: 'calc(100% - 320px)', // 减去两个按钮的宽度和间距
+        boxSizing: 'border-box',
+        height: '40px', // 统一高度以匹配输入框和按钮
+    };
+
+    const tableCellStyle = {
+        border: '1px solid white',
+        padding: '8px',
+        textAlign: 'center',
+    };
+
     const fetchUserAccountBooks = async () => {
         if (!currentAccount?.address) {
             console.error("No connected account found.");
@@ -104,84 +155,67 @@ const AddContent: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
     }, []);
 
     return (
-      <div>
-        <h3>请选择一个账本:</h3>
-        <select value={selectedObjectId} onChange={handleSelectChange}>
-          <option value="">--请选择--</option>
-          {options.map((option) => (
-            <option key={option.key} value={option.value}>
-              {option.value}
-            </option>
-          ))}
-        </select>
-
         <div>
-          <label htmlFor="money">花销:</label>
-          <input
-            type="text"
-            id="money"
-            value={money}
-            onChange={handleMoneyChange}
-          />
-        </div>
+            <h3 style={{ marginBottom: '20px' }}>请选择一个账本:</h3>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                <select style={selectStyle} value={selectedObjectId} onChange={handleSelectChange}>
+                    <option value="">--请选择--</option>
+                    {options.map((option) => (
+                        <option key={option.key} value={option.value}>
+                            {option.value}
+                        </option>
+                    ))}
+                </select>
+                <div style={buttonContainerStyle}>
+                    <button onClick={() => fetchUserAccountBooks()} style={buttonStyle}>
+                        刷新账本列表
+                    </button>
+                    <button onClick={getAccountDetails} style={buttonStyle}>
+                        获取账单详情
+                    </button>
+                </div>
+            </div>
 
-        <div>
-          <label htmlFor="description">用途描述:</label>
-          <input
-            type="text"
-            id="description"
-            value={description}
-            onChange={handleDescriptionChange}
-          />
-        </div>
+            <div>
+                <label htmlFor="money" style={{ display: 'block', marginBottom: '5px' }}>花销:</label>
+                <input type="text" id="money" value={money} onChange={handleMoneyChange} style={inputStyle} />
+            </div>
 
-        <div style={{marginTop:"3%"}}>
-          <button
-            onClick={handleSubmit}
-            className="button-text"
-            style={{ marginRight: "5%" }}
-          >
-            添加记录
-          </button>
-          <button
-            onClick={getAccountDetails}
-            className="button-text"
-            style={{ marginRight: "5%" }}
-          >
-            获取账单详情
-          </button>
-          <button
-            onClick={() => fetchUserAccountBooks()}
-            className="button-text"
-          >
-            刷新账本列表
-          </button>
-        </div>
+            <div>
+                <label htmlFor="description" style={{ display: 'block', marginBottom: '5px' }}>用途描述:</label>
+                <input type="text" id="description" value={description} onChange={handleDescriptionChange} style={inputStyle} />
+            </div>
 
-        {/* 账单详情表格 */}
-        {accountDetails.length > 0 && (
-          <table>
-            <thead>
-              <tr>
-                <th style={{ border: '1px solid black', padding: '8px' }}>序号</th>
-                <th style={{ border: '1px solid black', padding: '8px' }}>时间</th>
-                <th style={{ border: '1px solid black', padding: '8px' }}>开销</th>
-                <th style={{ border: '1px solid black', padding: '8px' }}>用途描述</th>
-              </tr>
-            </thead>
-            <tbody>
-              {accountDetails.map((detail, index) => (
-                <tr key={index}>
-                  <td style={{ border: '1px solid black', padding: '8px' }}>{index + 1}</td>
-                  <td style={{ border: '1px solid black', padding: '8px' }}>{detail.fields.dateTime}</td>
-                  <td style={{ border: '1px solid black', padding: '8px' }}>{detail.fields.money}</td>
-                  <td style={{ border: '1px solid black', padding: '8px' }}>{detail.fields.description}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+            <div style={{ marginTop: "3%" }}>
+                <button onClick={handleSubmit} style={buttonStyle}>
+                    添加记录
+                </button>
+            </div>
+
+            {/* 账单详情表格 */}
+            {accountDetails.length > 0 && (
+                <table style={{ width: '100%', marginTop: '20px', borderCollapse: 'collapse' }}>
+                    <thead>
+                    <tr>
+                        <th style={tableCellStyle}>序号</th>
+                        <th style={tableCellStyle}>时间</th>
+                        <th style={tableCellStyle}>开销</th>
+                        <th style={tableCellStyle}>用途描述</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {accountDetails.map((detail, index) => (
+                        <tr key={index}>
+                            <td style={tableCellStyle}>{index + 1}</td>
+                            <td style={tableCellStyle}>{detail.fields.dateTime}</td>
+                            <td style={tableCellStyle}>{detail.fields.money}</td>
+                            <td style={tableCellStyle}>{detail.fields.description}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            )}
+        </div>
     );
 };
 

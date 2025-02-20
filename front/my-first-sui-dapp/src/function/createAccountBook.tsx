@@ -8,7 +8,7 @@ const CreateAccountBook: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) =
     const { mutateAsync: signAndExecute, isError } = useSignAndExecuteTransaction();
     const PackageId = networkConfig.testnet.packageID;
     const [loading, setLoading] = useState(false);
-    const [category, setCategory] = useState(''); // 新增状态变量
+    const [category, setCategory] = useState('');
 
     const create = async () => {
         if (!currentAccount?.address) {
@@ -21,9 +21,7 @@ const CreateAccountBook: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) =
 
             const state = await suiClient.getObject({
                 id: networkConfig.testnet.stateID,
-                options: {
-                    showContent: true
-                }
+                options: { showContent: true }
             }) as any;
             const state_fields_id = state.data.content.fields.users.fields.id['id'];
 
@@ -67,21 +65,46 @@ const CreateAccountBook: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) =
         }
     };
 
+    // 定义样式
+    const inputStyle = {
+        padding: '10px',
+        marginRight: '10px',
+        border: '2px solid #ccc',
+        borderRadius: '5px',
+        fontSize: '16px',
+        transition: 'border-color 0.3s ease',
+        outline: 'none',
+        boxShadow: category ? '0 0 0 2px lightblue' : 'none', // 输入内容时增加边框高亮
+    };
+
+    const buttonStyle = {
+        padding: '10px 20px',
+        backgroundColor: 'white',
+        color: 'black',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        transition: 'background-color 0.3s ease',
+        opacity: (!category || loading) ? 0.6 : 1, // 当按钮不可用时降低透明度
+    };
+
     return (
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
             <input
                 type="text"
                 placeholder="Enter category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)} // 绑定输入事件
-                className="input-text"
+                style={inputStyle}
+                onFocus={(e) => e.target.style.borderColor = 'blue'} // 获得焦点时改变边框颜色
+                onBlur={(e) => e.target.style.borderColor = category ? '#ccc' : '#ccc'} // 失去焦点时恢复边框颜色
             />
             <button
                 onClick={create}
-                className="button-text"
+                style={buttonStyle}
                 disabled={!category || loading} // 禁用按钮直到输入了category且不在加载状态
             >
-                Create Account Book
+                {loading ? 'Loading...' : '创建账本'}
             </button>
         </div>
     );
